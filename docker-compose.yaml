@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres
+    container_name: urlshortendb
+    restart: always
+    shm_size: 128mb
+    env_file: ".env"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_urlshorten
+    restart: always
+    env_file: ".env"
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+volumes:
+  local_pgdata:
+  pgadmin-data:
