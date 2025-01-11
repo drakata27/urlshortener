@@ -1,5 +1,6 @@
 package online.aleksdraka.urlshortener.services;
 
+import jakarta.transaction.Transactional;
 import online.aleksdraka.urlshortener.dto.ShortenedUrlDTO;
 import online.aleksdraka.urlshortener.models.ShortenedURL;
 import online.aleksdraka.urlshortener.repositories.ShortenedURLRepository;
@@ -31,19 +32,27 @@ public class ShortenedURLService {
     }
 
     public ShortenedUrlDTO getShortenedURL(String shortCode) {
-        ShortenedURL shortenedURL = repository.findByShortCode(shortCode);
-        int currentCount = shortenedURL.getAccessCount();
-        shortenedURL.setAccessCount(currentCount + 1);
-        repository.save(shortenedURL);
-        return convertToDTO(shortenedURL);
+        try {
+            ShortenedURL shortenedURL = repository.findByShortCode(shortCode);
+            int currentCount = shortenedURL.getAccessCount();
+            shortenedURL.setAccessCount(currentCount + 1);
+            repository.save(shortenedURL);
+            return convertToDTO(shortenedURL);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public ShortenedURL getShortenedUrlStats(String shortCode) {
-        ShortenedURL shortenedURL = repository.findByShortCode(shortCode);
-        int currentCount = shortenedURL.getAccessCount();
-        shortenedURL.setAccessCount(currentCount + 1);
-        repository.save(shortenedURL);
-        return shortenedURL;
+        try {
+            ShortenedURL shortenedURL = repository.findByShortCode(shortCode);
+            int currentCount = shortenedURL.getAccessCount();
+            shortenedURL.setAccessCount(currentCount + 1);
+            repository.save(shortenedURL);
+            return shortenedURL;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public ShortenedUrlDTO updateShortenedURL(
@@ -51,17 +60,17 @@ public class ShortenedURLService {
             ShortenedURL newURL
     ) {
         ShortenedURL existingURL = repository.findByShortCode(shortCode);
-
-
+        if (existingURL == null) {
+            return null;
+        }
         existingURL.setUrl(newURL.getUrl());
-
         String timeStamp = ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         existingURL.setUpdatedAt(timeStamp);
-
         repository.save(existingURL);
         return convertToDTO(existingURL);
     }
 
+    @Transactional
     public void deleteShortenedURL(String shortCode) {
         repository.deleteByShortCode(shortCode);
     }
