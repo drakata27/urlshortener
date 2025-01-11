@@ -9,12 +9,10 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 @Service
 public class ShortenedURLService {
     private final ShortenedURLRepository repository;
-    private final Logger logger = Logger.getLogger(ShortenedURLService.class.getName());
 
     public ShortenedURLService(ShortenedURLRepository repository) {
         this.repository = repository;
@@ -32,7 +30,11 @@ public class ShortenedURLService {
     }
 
     public ShortenedURL getShortenedURL(String shortCode) {
-        return repository.findByShortCode(shortCode);
+        ShortenedURL shortenedURL = repository.findByShortCode(shortCode);
+        int currentCount = shortenedURL.getAccessCount();
+        shortenedURL.setAccessCount(currentCount + 1);
+        repository.save(shortenedURL);
+        return shortenedURL;
     }
 
     public ShortenedURL updateShortenedURL(
@@ -43,13 +45,11 @@ public class ShortenedURLService {
 
 
         existingURL.setUrl(newURL.getUrl());
-        logger.info("Existing URL ID: " + existingURL.getId());
 
         String timeStamp = ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         existingURL.setUpdatedAt(timeStamp);
 
         repository.save(existingURL);
-        logger.info("Existing URL ID: " + existingURL.getId());
         return existingURL;
     }
 
