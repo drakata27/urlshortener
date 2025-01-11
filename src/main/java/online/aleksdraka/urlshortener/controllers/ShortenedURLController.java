@@ -44,12 +44,15 @@ public class ShortenedURLController {
     }
 
     @PutMapping("/shorten/{shortCode}")
-    public ResponseEntity<ShortenedUrlDTO> updateShortenedURL(
+    public ResponseEntity<?> updateShortenedURL(
             @PathVariable String shortCode,
             @RequestBody ShortenedURL url
     ) {
         try {
             ShortenedUrlDTO shortenedURL = service.updateShortenedURL(shortCode, url);
+            if (shortenedURL == null) {
+                return new ResponseEntity<>("URL with that Short Code was not found", HttpStatus.NOT_FOUND);
+            }
             return new ResponseEntity<>(shortenedURL, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
