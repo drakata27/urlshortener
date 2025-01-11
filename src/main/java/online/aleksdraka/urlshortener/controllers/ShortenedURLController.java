@@ -45,4 +45,10 @@ public class ShortenedURLController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @DeleteMapping("/shorten/{shortCode}")
+    public ResponseEntity<ShortenedURL> deleteShortenedURL(@PathVariable String shortCode) {
+        service.deleteShortenedURL(shortCode);
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
 }

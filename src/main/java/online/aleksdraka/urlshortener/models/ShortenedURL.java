@@ -4,10 +4,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
-
-import java.util.Date;
 
 @Entity
 public class ShortenedURL {
@@ -21,6 +17,8 @@ public class ShortenedURL {
     private String createdAt;
 
     private String updatedAt;
+
+    private int accessCount;
 
     public ShortenedURL() {
     }
@@ -67,5 +65,13 @@ public class ShortenedURL {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public int getAccessCount() {
+        return accessCount;
+    }
+
+    public void setAccessCount(int accessCount) {
+        this.accessCount = accessCount;
     }
 }
