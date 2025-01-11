@@ -1,5 +1,6 @@
 package online.aleksdraka.urlshortener.controllers;
 
+import online.aleksdraka.urlshortener.dto.ShortenedUrlDTO;
 import online.aleksdraka.urlshortener.models.ShortenedURL;
 import online.aleksdraka.urlshortener.services.ShortenedURLService;
 import org.springframework.http.HttpStatus;
@@ -15,18 +16,27 @@ public class ShortenedURLController {
     }
 
     @PostMapping("/shorten")
-    public ResponseEntity<ShortenedURL> shortenURL(@RequestBody ShortenedURL url) {
+    public ResponseEntity<ShortenedUrlDTO> shortenURL(@RequestBody ShortenedURL url) {
         try {
-            service.saveUrl(url);
-            return new ResponseEntity<>(url, HttpStatus.CREATED);
+            ShortenedUrlDTO savedUrl = service.saveUrl(url);
+            return new ResponseEntity<>(savedUrl, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
     @GetMapping("/shorten/{shortCode}")
-    public ResponseEntity<ShortenedURL> getShortenedURL(@PathVariable String shortCode) {
-        ShortenedURL url = service.getShortenedURL(shortCode);
+    public ResponseEntity<ShortenedUrlDTO> getShortenedURL(@PathVariable String shortCode) {
+        ShortenedUrlDTO url = service.getShortenedURL(shortCode);
+        if (url == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(url, HttpStatus.OK);
+    }
+
+    @GetMapping("/shorten/{shortCode}/stats")
+    public ResponseEntity<ShortenedURL> getShortenedURLStats(@PathVariable String shortCode) {
+        ShortenedURL url = service.getShortenedUrlStats(shortCode);
         if (url == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -34,12 +44,12 @@ public class ShortenedURLController {
     }
 
     @PutMapping("/shorten/{shortCode}")
-    public ResponseEntity<ShortenedURL> updateShortenedURL(
+    public ResponseEntity<ShortenedUrlDTO> updateShortenedURL(
             @PathVariable String shortCode,
             @RequestBody ShortenedURL url
     ) {
         try {
-            ShortenedURL shortenedURL = service.updateShortenedURL(shortCode, url);
+            ShortenedUrlDTO shortenedURL = service.updateShortenedURL(shortCode, url);
             return new ResponseEntity<>(shortenedURL, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
