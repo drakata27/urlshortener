@@ -1,5 +1,6 @@
 package online.aleksdraka.urlshortener.services;
 
+import jakarta.transaction.Transactional;
 import online.aleksdraka.urlshortener.dto.ShortenedUrlDTO;
 import online.aleksdraka.urlshortener.models.ShortenedURL;
 import online.aleksdraka.urlshortener.repositories.ShortenedURLRepository;
@@ -69,6 +70,7 @@ public class ShortenedURLService {
         return convertToDTO(existingURL);
     }
 
+    @Transactional
     public void deleteShortenedURL(String shortCode) {
         repository.deleteByShortCode(shortCode);
     }
