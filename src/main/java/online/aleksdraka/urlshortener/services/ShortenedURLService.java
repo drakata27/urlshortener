@@ -1,6 +1,6 @@
 package online.aleksdraka.urlshortener.services;
 
-import jakarta.transaction.Transactional;
+import online.aleksdraka.urlshortener.dto.ShortenedUrlDTO;
 import online.aleksdraka.urlshortener.models.ShortenedURL;
 import online.aleksdraka.urlshortener.repositories.ShortenedURLRepository;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class ShortenedURLService {
         this.repository = repository;
     }
 
-    public void saveUrl(ShortenedURL url) {
+    public ShortenedUrlDTO saveUrl(ShortenedURL url) {
         String randomCode = UUID.randomUUID().toString().substring(0, 6);
         String timeStamp = Instant.now().toString();
 
@@ -26,10 +26,19 @@ public class ShortenedURLService {
         url.setCreatedAt(timeStamp);
         url.setUpdatedAt(timeStamp);
 
-        repository.save(url);
+        ShortenedURL savedUrl = repository.save(url);
+        return convertToDTO(savedUrl);
     }
 
-    public ShortenedURL getShortenedURL(String shortCode) {
+    public ShortenedUrlDTO getShortenedURL(String shortCode) {
+        ShortenedURL shortenedURL = repository.findByShortCode(shortCode);
+        int currentCount = shortenedURL.getAccessCount();
+        shortenedURL.setAccessCount(currentCount + 1);
+        repository.save(shortenedURL);
+        return convertToDTO(shortenedURL);
+    }
+
+    public ShortenedURL getShortenedUrlStats(String shortCode) {
         ShortenedURL shortenedURL = repository.findByShortCode(shortCode);
         int currentCount = shortenedURL.getAccessCount();
         shortenedURL.setAccessCount(currentCount + 1);
@@ -37,7 +46,7 @@ public class ShortenedURLService {
         return shortenedURL;
     }
 
-    public ShortenedURL updateShortenedURL(
+    public ShortenedUrlDTO updateShortenedURL(
             String shortCode,
             ShortenedURL newURL
     ) {
@@ -50,11 +59,20 @@ public class ShortenedURLService {
         existingURL.setUpdatedAt(timeStamp);
 
         repository.save(existingURL);
-        return existingURL;
+        return convertToDTO(existingURL);
     }
 
-    @Transactional
     public void deleteShortenedURL(String shortCode) {
         repository.deleteByShortCode(shortCode);
+    }
+
+    public ShortenedUrlDTO convertToDTO(ShortenedURL entity) {
+        return new ShortenedUrlDTO(
+                entity.getId(),
+                entity.getUrl(),
+                entity.getShortCode(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
     }
 }
